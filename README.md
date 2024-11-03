@@ -1,5 +1,7 @@
 # Virtual Humans Project
 
+[![CI](https://github.com/leonvanbokhorst/virtual-human/actions/workflows/ci.yml/badge.svg)](https://github.com/leonvanbokhorst/virtual-human/actions/workflows/ci.yml)
+
 ## Overview
 
 The Sensitive Virtual Humans project aims to develop interactive virtual humans that combine realistic appearances with advanced AI capabilities, focusing on making human-AI interaction more natural and accessible to everyone, regardless of their technical expertise.
