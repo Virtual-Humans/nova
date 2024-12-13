@@ -1,5 +1,7 @@
 .cursorrules
 
+.venv/
+.env
 
 # Python
 __pycache__/
