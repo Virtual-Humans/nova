@@ -1,77 +1,54 @@
-# Virtual Humans Project
+# Predictive Coding Implementation
 
 [![CI](https://github.com/leonvanbokhorst/virtual-human/actions/workflows/ci.yml/badge.svg)](https://github.com/leonvanbokhorst/virtual-human/actions/workflows/ci.yml)
 
 ## Overview
 
-The Sensitive Virtual Humans project aims to develop interactive virtual humans that combine realistic appearances with advanced AI capabilities, focusing on making human-AI interaction more natural and accessible to everyone, regardless of their technical expertise.
+This project implements predictive coding models in Python, focusing on virtual human experiences. 
 
-## Project Status
+## Project Structure
 
-- **Current Status**: In Development
-- **Project Lead**: Mark de Graaf (m.degraaf@fontys.nl)
-- **Started**: 2023
-- **TRL Level**: 5 (Technology validated in relevant environment)
-- **SRL Level**: 4 (Problem validated through pilot testing)
+```
+.
+├── predictive_coding/
+│   ├── 01_predcod.py      
+│   ├── 02_predcod_nova.py
+│   └── utils/
+├── docs/                 
+└── requirements.txt      
+```
 
-## 🎯 Project Goals
+## Technical Stack
 
-- Create virtual humans that can integrate sensor data and LLMs for more natural interactions
-- Incorporate non-verbal communication aspects into AI interactions
-- Develop solutions that are inclusive and accessible to people with varying levels of digital literacy
-- Bridge the gap between advanced AI technology and everyday users
+- Python-based implementation
+- Core dependencies:
+  - NumPy
+  - Matplotlib
 
-## 🔑 Key Features
+## Development Setup
 
-- Integration with various sensor data:
-  - Face reading
-  - Blood pressure monitoring
-  - Skin resistance measurement
-  - Voice analysis
-- LLM integration for natural language processing
-- Privacy-by-design approach
-- Realistic virtual human representations using Metahuman technology
+1. Create a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   ```
 
-## 🛠️ Technical Infrastructure
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-- Built on shared architecture developed in collaboration with:
-  - Cognitive Science and AI group (Tilburg University)
-  - Virtual Humans group (Breda University of Applied Science)
-- Integration with existing virtual human platforms
-- Default hardware compatibility (webcams and microphones)
+## Contributing
 
-## 📈 Scalability Features
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests
+5. Submit a pull request
 
-1. Universal design guidelines applicable across various use cases
-2. Modular architecture allowing component upgrades (e.g., LLM replacement)
-3. Diversified communication approaches for different user groups
-4. Usage of commonly available technology
-5. Cost-effective scaling capabilities for mass deployment
+## License
 
-## 🤝 Partnerships
-
-- Funded by Regiodeal Brede Welvaart, Innovation District
-- Part of the Digireal consortium
-- Collaboration with MindLabs (see demo: https://www.mind-labs.eu/over-ons/mai/)
-
-## 🔒 Privacy & Ethics
-
-- Collects privacy-sensitive information
-- Implements privacy-by-design principles
-- Includes ethical exploration within safe research environment
-- Commitment to balanced ethical decision-making for public releases
-
-## 🚀 Development Approach
-
-- Iterative development with stakeholder involvement
-- Focus on scalability from project inception
-- Regular pilot testing in relevant environments
-- Continuous refinement based on user feedback
-
-## 🔗 Related Links
-
-- [MindLabs MAI Demo](https://www.mind-labs.eu/over-ons/mai/)
-- [Metahuman Creator](https://www.unrealengine.com/en-US/metahuman)
+This project is licensed under the MIT License.
 
 ---
-*This project is part of Fontys ICT's initiative to make AI technology more accessible and human-centered.*
+*Part of the Virtual Humans research at Fontys ICT, Lectorate IxD.*
