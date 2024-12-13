@@ -170,8 +170,7 @@ def generate_pattern(n_steps: int = 100) -> np.ndarray:
         numpy array containing the generated signal
     """
     t = np.linspace(0, 4*np.pi, n_steps)
-    signal = np.sin(t) + 0.2 * np.random.randn(n_steps)
-    return signal
+    return np.sin(t) + 0.2 * np.random.randn(n_steps)
 
 def demo_predictive_coding():
     """
