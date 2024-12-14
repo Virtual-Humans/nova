@@ -101,11 +101,7 @@ class NOVALayer:
 
     def publish(self, topic: str, message: Dict[str, Any]):
         """
-        Publish message to a Kafka topic.
-
-        Args:
-            topic (str): Kafka topic to publish to
-            message (Dict[str, Any]): Message content in dictionary format
+        Non-blocking publish to Kafka topic
         """
         try:
             self.producer.produce(
@@ -113,7 +109,7 @@ class NOVALayer:
                 json.dumps(message).encode("utf-8"),
                 callback=self.delivery_report,
             )
-            self.producer.flush()
+            self.producer.poll(0)  # Non-blocking poll for callbacks
         except Exception as e:
             print(f"Error producing message: {e}")
 
@@ -127,12 +123,9 @@ class NOVALayer:
 
 class ReactiveLayer(NOVALayer):
     """
-    Fast response layer (50-300ms)
+    Fast response layer (50-100ms)
 
     Handles immediate responses with minimal processing.
-    Similar to gamma wave processing in the brain.
-
-    Processing characteristics:
     - Fastest response time
     - Minimal context consideration
     - Basic pattern matching
@@ -148,13 +141,18 @@ class ReactiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Processed response
         """
-        # Simulate gamma-wave processing time without blocking
-        await asyncio.sleep(0.1)  # 100ms
-
+        start_time = time.time()
+        
+        # Quick processing simulation
+        await asyncio.sleep(0.05)  # 50ms for immediate response
+        
+        end_time = time.time()
         response = {
             "type": "reactive_response",
             "content": f"Quick acknowledgment: {message.get('content', '')}",
-            "timestamp": time.time(),
+            "start_time": start_time,
+            "end_time": end_time,
+            "processing_duration": end_time - start_time,
         }
 
         self.publish("nova.reactive.output", response)
@@ -163,12 +161,9 @@ class ReactiveLayer(NOVALayer):
 
 class ResponsiveLayer(NOVALayer):
     """
-    Context-aware layer (300-1000ms)
+    Context-aware layer (100-300ms)
 
     Processes information with awareness of immediate context.
-    Similar to beta wave processing in the brain.
-
-    Processing characteristics:
     - Medium response time
     - Context integration
     - Short-term pattern recognition
@@ -184,14 +179,19 @@ class ResponsiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Context-aware response
         """
-        # Simulate beta-wave processing time without blocking
-        await asyncio.sleep(0.3)  # 300ms
-
+        start_time = time.time()
+        
+        # Context processing simulation
+        await asyncio.sleep(0.2)  # 200ms for context processing
+        
+        end_time = time.time()
         response = {
             "type": "responsive_response",
             "content": f"Thoughtful response to: {message.get('content', '')}",
             "context": "user_interaction",
-            "timestamp": time.time(),
+            "start_time": start_time,
+            "end_time": end_time,
+            "processing_duration": end_time - start_time,
         }
 
         self.publish("nova.responsive.output", response)
@@ -200,15 +200,12 @@ class ResponsiveLayer(NOVALayer):
 
 class ReflectiveLayer(NOVALayer):
     """
-    Learning and adaptation layer (background processing)
+    Learning and adaptation layer (300-500ms)
 
     Handles pattern learning and long-term adaptation.
-    Similar to alpha/theta wave processing in the brain.
-
-    Processing characteristics:
-    - Slowest response time
-    - Deep pattern analysis
+    - Pattern analysis
     - Learning and adaptation
+    - Long-term memory integration
     """
 
     async def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
@@ -221,14 +218,19 @@ class ReflectiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Learning/adaptation response
         """
-        # Simulate alpha/theta-wave processing time without blocking
-        await asyncio.sleep(0.5)  # 500ms
-
+        start_time = time.time()
+        
+        # Learning simulation
+        await asyncio.sleep(0.4)  # 400ms for learning/adaptation
+        
+        end_time = time.time()
         response = {
             "type": "reflective_update",
             "pattern": "user_interaction_pattern",
             "learning": f"Learned from: {message.get('content', '')}",
-            "timestamp": time.time(),
+            "start_time": start_time,
+            "end_time": end_time,
+            "processing_duration": end_time - start_time,
         }
 
         self.publish("nova.reflective.output", response)
@@ -250,29 +252,36 @@ class NOVA:
 
     async def process_message(self, message: Dict[str, Any]):
         """
-        Process message through all layers asynchronously
-
-        Creates parallel tasks for each layer and waits for all results.
-
-        Args:
-            message (Dict[str, Any]): Input message to process
-
-        Returns:
-            Dict[str, Any]: Combined results from all layers
+        Process message through all layers in parallel
         """
-        # Create tasks for each layer - now directly using async methods
-        reactive_task = asyncio.create_task(self.reactive.process(message))
-        responsive_task = asyncio.create_task(self.responsive.process(message))
-        reflective_task = asyncio.create_task(self.reflective.process(message))
+        print(f"Starting parallel processing at {time.time()}")
 
-        # Wait for all tasks to complete
-        results = await asyncio.gather(reactive_task, responsive_task, reflective_task)
+        # Create tasks for each layer
+        tasks = [
+            self.reactive.process(message),
+            self.responsive.process(message),
+            self.reflective.process(message)
+        ]
 
-        return {
-            "reactive": results[0],
-            "responsive": results[1],
-            "reflective": results[2],
-        }
+        # Process all tasks in parallel
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Now flush all producers
+        self.reactive.producer.flush()
+        self.responsive.producer.flush()
+        self.reflective.producer.flush()
+
+        # Process results and handle any exceptions
+        processed_results = {}
+        for i, layer in enumerate(['reactive', 'responsive', 'reflective']):
+            if isinstance(results[i], Exception):
+                print(f"Error in {layer} layer: {results[i]}")
+                processed_results[layer] = None
+            else:
+                processed_results[layer] = results[i]
+
+        print(f"All processing completed at {time.time()}")
+        return processed_results
 
     def close(self):
         """Clean up resources for all layers"""
