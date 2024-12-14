@@ -57,6 +57,20 @@ import json
 import time
 from typing import Dict, Any
 import asyncio
+import logging
+
+
+logger = logging.getLogger(__name__)
+
+
+class KafkaPublishError(Exception):
+    """Raised when there is an error publishing messages to Kafka"""
+    pass
+
+
+class NOVALayerError(Exception):
+    """Base exception for NOVA layer errors"""
+    pass
 
 
 class NOVALayer:
@@ -111,14 +125,38 @@ class NOVALayer:
             )
             self.producer.poll(0)  # Non-blocking poll for callbacks
         except Exception as e:
-            print(f"Error producing message: {e}")
+            logger.error(
+                "Failed to publish message to Kafka",
+                extra={
+                    "topic": topic,
+                    "error": str(e),
+                    "layer": self.__class__.__name__
+                },
+                exc_info=True
+            )
+            raise KafkaPublishError(f"Failed to publish message to Kafka: {e}") from e
 
     def delivery_report(self, err, msg):
         """Callback for Kafka message delivery confirmation"""
         if err is not None:
-            print(f"Message delivery failed: {err}")
+            logger.error(
+                "Message delivery failed",
+                extra={
+                    "topic": msg.topic(),
+                    "error": str(err),
+                    "layer": self.__class__.__name__
+                }
+            )
+            # Note: Can't raise here as it's a callback
+            # Consider implementing a message retry mechanism
         else:
-            print(f"Message delivered to {msg.topic()}")
+            logger.debug(
+                "Message delivered successfully",
+                extra={
+                    "topic": msg.topic(),
+                    "layer": self.__class__.__name__
+                }
+            )
 
 
 class ReactiveLayer(NOVALayer):
@@ -253,35 +291,51 @@ class NOVA:
     async def process_message(self, message: Dict[str, Any]):
         """
         Process message through all layers in parallel
-        """
-        print(f"Starting parallel processing at {time.time()}")
 
-        # Create tasks for each layer
+        Args:
+            message: The message to process
+
+        Returns:
+            Dict containing results from each layer
+
+        Raises:
+            NOVALayerError: If any layer fails to process the message
+        """
+        logger.info("Starting parallel processing", extra={"timestamp": time.time()})
+
         tasks = [
             self.reactive.process(message),
             self.responsive.process(message),
             self.reflective.process(message)
         ]
 
-        # Process all tasks in parallel
-        results = await asyncio.gather(*tasks, return_exceptions=True)
+        try:
+            results = await asyncio.gather(*tasks, return_exceptions=True)
 
-        # Now flush all producers
-        self.reactive.producer.flush()
-        self.responsive.producer.flush()
-        self.reflective.producer.flush()
+            # Check for exceptions before flushing
+            errors = []
+            for i, layer in enumerate(['reactive', 'responsive', 'reflective']):
+                if isinstance(results[i], Exception):
+                    errors.append(f"{layer}: {str(results[i])}")
 
-        # Process results and handle any exceptions
-        processed_results = {}
-        for i, layer in enumerate(['reactive', 'responsive', 'reflective']):
-            if isinstance(results[i], Exception):
-                print(f"Error in {layer} layer: {results[i]}")
-                processed_results[layer] = None
-            else:
-                processed_results[layer] = results[i]
+            if errors:
+                raise NOVALayerError(f"Layer processing failed: {'; '.join(errors)}")
 
-        print(f"All processing completed at {time.time()}")
-        return processed_results
+            # Now flush all producers
+            try:
+                self.reactive.producer.flush()
+                self.responsive.producer.flush()
+                self.reflective.producer.flush()
+            except Exception as e:
+                logger.error("Failed to flush producers", exc_info=True)
+                raise KafkaPublishError("Failed to flush Kafka producers") from e
+
+            logger.info("All processing completed", extra={"timestamp": time.time()})
+            return dict(zip(['reactive', 'responsive', 'reflective'], results))
+
+        except Exception as e:
+            logger.error("Failed to process message", exc_info=True)
+            raise NOVALayerError("Failed to process message") from e
 
     def close(self):
         """Clean up resources for all layers"""
