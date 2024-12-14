@@ -1,2 +1,6 @@
 numpy
 matplotlib
+python-dotenv
+
+# Kafka
+confluent-kafka==2.3.0
