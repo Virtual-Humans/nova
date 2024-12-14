@@ -119,7 +119,7 @@ class ReactiveLayer(NOVALayer):
     - Basic pattern matching
     """
 
-    def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
+    async def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """
         Quick processing of immediate responses
         
@@ -129,8 +129,8 @@ class ReactiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Processed response
         """
-        # Simulate gamma-wave processing time
-        time.sleep(0.1)  # 100ms
+        # Simulate gamma-wave processing time without blocking
+        await asyncio.sleep(0.1)  # 100ms
 
         response = {
             "type": "reactive_response",
@@ -155,7 +155,7 @@ class ResponsiveLayer(NOVALayer):
     - Short-term pattern recognition
     """
 
-    def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
+    async def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process with context awareness
         
@@ -165,8 +165,8 @@ class ResponsiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Context-aware response
         """
-        # Simulate beta-wave processing time
-        time.sleep(0.3)  # 300ms
+        # Simulate beta-wave processing time without blocking
+        await asyncio.sleep(0.3)  # 300ms
 
         response = {
             "type": "responsive_response",
@@ -192,7 +192,7 @@ class ReflectiveLayer(NOVALayer):
     - Learning and adaptation
     """
 
-    def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
+    async def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process for long-term learning and adaptation
         
@@ -202,8 +202,8 @@ class ReflectiveLayer(NOVALayer):
         Returns:
             Dict[str, Any]: Learning/adaptation response
         """
-        # Simulate alpha/theta-wave processing time
-        time.sleep(0.5)  # 500ms
+        # Simulate alpha/theta-wave processing time without blocking
+        await asyncio.sleep(0.5)  # 500ms
 
         response = {
             "type": "reflective_update",
@@ -241,16 +241,10 @@ class NOVA:
         Returns:
             Dict[str, Any]: Combined results from all layers
         """
-        # Create tasks for each layer
-        reactive_task = asyncio.create_task(
-            asyncio.to_thread(self.reactive.process, message)
-        )
-        responsive_task = asyncio.create_task(
-            asyncio.to_thread(self.responsive.process, message)
-        )
-        reflective_task = asyncio.create_task(
-            asyncio.to_thread(self.reflective.process, message)
-        )
+        # Create tasks for each layer - now directly using async methods
+        reactive_task = asyncio.create_task(self.reactive.process(message))
+        responsive_task = asyncio.create_task(self.responsive.process(message))
+        reflective_task = asyncio.create_task(self.reflective.process(message))
 
         # Wait for all tasks to complete
         results = await asyncio.gather(reactive_task, responsive_task, reflective_task)
