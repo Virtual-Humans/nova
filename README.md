@@ -4,26 +4,31 @@
 
 ## Overview
 
-This project implements predictive coding models in Python, focusing on virtual human experiences. 
+This project implements predictive coding models in Python, focusing on virtual human experiences. It includes both standalone implementations and a Kafka-integrated version for real-time processing.
 
 ## Project Structure
 
 ```
 .
 ├── predictive_coding/
-│   ├── 01_predcod.py      
-│   ├── 02_predcod_nova.py
+│   ├── 01_predcod.py         # Basic predictive coding implementation
+│   ├── 02_predcod_nova.py    # Enhanced Nova implementation
+│   ├── 03_kafka_nova_poc.py  # Kafka-integrated version
 │   └── utils/
 ├── docs/                 
-└── requirements.txt      
+├── requirements.txt
+├── pyproject.toml      
+└── setup.py
 ```
 
 ## Technical Stack
 
 - Python-based implementation
 - Core dependencies:
-  - NumPy
-  - Matplotlib
+  - NumPy: Numerical computing
+  - Matplotlib: Data visualization
+  - confluent-kafka: Kafka client for real-time processing
+  - python-dotenv: Environment variable management
 
 ## Development Setup
 
@@ -37,6 +42,10 @@ This project implements predictive coding models in Python, focusing on virtual 
    ```bash
    pip install -r requirements.txt
    ```
+
+3. Environment Configuration:
+   - For Kafka integration, set up appropriate environment variables
+   - Use `.env` file for local development
 
 ## Contributing
 
