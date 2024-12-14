@@ -1,3 +1,60 @@
+"""
+NOVA (Neural Oscillation Virtual Architecture) - Kafka Implementation POC
+
+This experiment implements a three-layer cognitive architecture inspired by 
+predictive processing and neural oscillation patterns in the brain. Each layer 
+operates at different temporal scales and processing depths.
+
+System Architecture:
+-------------------
+1. Reactive Layer (50-300ms)
+   - Handles immediate responses
+   - Similar to brain's gamma waves (30-100 Hz)
+   - Minimal processing, quick reflexes
+
+2. Responsive Layer (300-1000ms)
+   - Context-aware processing
+   - Similar to beta waves (13-30 Hz)
+   - Integrates immediate context
+
+3. Reflective Layer (>1000ms)
+   - Learning and adaptation
+   - Similar to alpha/theta waves (4-13 Hz)
+   - Pattern recognition and long-term learning
+
+Message Flow:
+------------
+Input → Kafka → [Reactive, Responsive, Reflective] → Kafka → Output
+
+Requirements:
+------------
+- Docker containers for Kafka and Zookeeper
+- confluent-kafka-python client
+- Python 3.7+ for async/await support
+
+Docker Setup:
+------------
+# Remove existing containers if needed
+# docker rm -f zookeeper kafka
+
+# Run Zookeeper
+# docker run -d --name zookeeper \
+#     -e ZOOKEEPER_CLIENT_PORT=2181 \
+#     -p 2181:2181 \
+#     confluentinc/cp-zookeeper:latest
+
+# Run Kafka
+# docker run -d --name kafka \
+#     --link zookeeper:zookeeper \
+#     -p 9092:9092 \
+#     -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+#     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+#     -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT \
+#     -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
+#     -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+#     confluentinc/cp-kafka:latest
+"""
+
 from confluent_kafka import Producer, Consumer
 import json
 import time
@@ -6,18 +63,34 @@ import asyncio
 
 
 class NOVALayer:
+    """
+    Base class for NOVA processing layers.
+    
+    Handles Kafka producer/consumer setup and message publishing.
+    Each layer inherits from this to implement specific processing logic.
+    
+    Args:
+        kafka_config (Dict[str, Any]): Kafka configuration parameters
+    """
+
     def __init__(self, kafka_config: Dict[str, Any]):
         # Producer config should exclude consumer-specific settings
         producer_config = {"bootstrap.servers": kafka_config["bootstrap.servers"]}
-
+        
         # Consumer config can keep all settings
         consumer_config = kafka_config.copy()
-
+        
         self.producer = Producer(producer_config)
         self.consumer = Consumer(consumer_config)
 
     def publish(self, topic: str, message: Dict[str, Any]):
-        """Publish message to a topic"""
+        """
+        Publish message to a Kafka topic.
+        
+        Args:
+            topic (str): Kafka topic to publish to
+            message (Dict[str, Any]): Message content in dictionary format
+        """
         try:
             self.producer.produce(
                 topic,
@@ -29,7 +102,7 @@ class NOVALayer:
             print(f"Error producing message: {e}")
 
     def delivery_report(self, err, msg):
-        """Callback for message delivery reports"""
+        """Callback for Kafka message delivery confirmation"""
         if err is not None:
             print(f"Message delivery failed: {err}")
         else:
@@ -37,14 +110,31 @@ class NOVALayer:
 
 
 class ReactiveLayer(NOVALayer):
-    """Fast response layer (50-300ms)"""
+    """
+    Fast response layer (50-300ms)
+    
+    Handles immediate responses with minimal processing.
+    Similar to gamma wave processing in the brain.
+    
+    Processing characteristics:
+    - Fastest response time
+    - Minimal context consideration
+    - Basic pattern matching
+    """
 
     def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
-        """Quick processing of immediate responses"""
-        # Simulate processing time
+        """
+        Quick processing of immediate responses
+        
+        Args:
+            message (Dict[str, Any]): Input message to process
+            
+        Returns:
+            Dict[str, Any]: Processed response
+        """
+        # Simulate gamma-wave processing time
         time.sleep(0.1)  # 100ms
 
-        # Simple response generation
         response = {
             "type": "reactive_response",
             "content": f"Quick acknowledgment: {message.get('content', '')}",
@@ -56,14 +146,31 @@ class ReactiveLayer(NOVALayer):
 
 
 class ResponsiveLayer(NOVALayer):
-    """Context-aware layer (300-1000ms)"""
+    """
+    Context-aware layer (300-1000ms)
+    
+    Processes information with awareness of immediate context.
+    Similar to beta wave processing in the brain.
+    
+    Processing characteristics:
+    - Medium response time
+    - Context integration
+    - Short-term pattern recognition
+    """
 
     def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
-        """Process with context awareness"""
-        # Simulate processing time
+        """
+        Process with context awareness
+        
+        Args:
+            message (Dict[str, Any]): Input message to process
+            
+        Returns:
+            Dict[str, Any]: Context-aware response
+        """
+        # Simulate beta-wave processing time
         time.sleep(0.3)  # 300ms
 
-        # Context-aware response
         response = {
             "type": "responsive_response",
             "content": f"Thoughtful response to: {message.get('content', '')}",
@@ -76,14 +183,31 @@ class ResponsiveLayer(NOVALayer):
 
 
 class ReflectiveLayer(NOVALayer):
-    """Learning and adaptation layer (background)"""
+    """
+    Learning and adaptation layer (background processing)
+    
+    Handles pattern learning and long-term adaptation.
+    Similar to alpha/theta wave processing in the brain.
+    
+    Processing characteristics:
+    - Slowest response time
+    - Deep pattern analysis
+    - Learning and adaptation
+    """
 
     def process(self, message: Dict[str, Any]) -> Dict[str, Any]:
-        """Process for long-term learning"""
-        # Simulate processing time
+        """
+        Process for long-term learning and adaptation
+        
+        Args:
+            message (Dict[str, Any]): Input message to process
+            
+        Returns:
+            Dict[str, Any]: Learning/adaptation response
+        """
+        # Simulate alpha/theta-wave processing time
         time.sleep(0.5)  # 500ms
 
-        # Pattern learning and adaptation
         response = {
             "type": "reflective_update",
             "pattern": "user_interaction_pattern",
@@ -96,13 +220,30 @@ class ReflectiveLayer(NOVALayer):
 
 
 class NOVA:
+    """
+    Main NOVA system orchestrator
+    
+    Coordinates the three processing layers and handles message distribution.
+    Implements parallel processing using asyncio.
+    """
+
     def __init__(self, kafka_config: Dict[str, Any]):
         self.reactive = ReactiveLayer(kafka_config)
         self.responsive = ResponsiveLayer(kafka_config)
         self.reflective = ReflectiveLayer(kafka_config)
 
     async def process_message(self, message: Dict[str, Any]):
-        """Process message through all layers asynchronously"""
+        """
+        Process message through all layers asynchronously
+        
+        Creates parallel tasks for each layer and waits for all results.
+        
+        Args:
+            message (Dict[str, Any]): Input message to process
+            
+        Returns:
+            Dict[str, Any]: Combined results from all layers
+        """
         # Create tasks for each layer
         reactive_task = asyncio.create_task(
             asyncio.to_thread(self.reactive.process, message)
@@ -124,8 +265,13 @@ class NOVA:
         }
 
 
-# Example usage
 async def main():
+    """
+    Example usage of the NOVA system
+    
+    Sets up Kafka configuration and processes a test message
+    through all layers.
+    """
     # Kafka configuration
     kafka_config = {
         "bootstrap.servers": "localhost:9092",
@@ -144,7 +290,7 @@ async def main():
     }
 
     # Process message
-    results = nova.process_message(message)
+    results = await nova.process_message(message)
     print("\nProcessing Results:")
     print("Reactive:\n", results["reactive"])
     print("Responsive:\n", results["responsive"])
