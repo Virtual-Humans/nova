@@ -9,17 +9,14 @@ System Architecture:
 -------------------
 1. Reactive Layer (50-300ms)
    - Handles immediate responses
-   - Similar to brain's gamma waves (30-100 Hz)
    - Minimal processing, quick reflexes
 
 2. Responsive Layer (300-1000ms)
    - Context-aware processing
-   - Similar to beta waves (13-30 Hz)
    - Integrates immediate context
 
 3. Reflective Layer (>1000ms)
    - Learning and adaptation
-   - Similar to alpha/theta waves (4-13 Hz)
    - Pattern recognition and long-term learning
 
 Message Flow:
