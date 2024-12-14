@@ -1,8 +1,7 @@
 """
-NOVA (Neural Oscillation Virtual Architecture) - Kafka Implementation POC
+NOVA - Kafka Implementation POC
 
-This experiment implements a three-layer cognitive architecture inspired by 
-predictive processing and neural oscillation patterns in the brain. Each layer 
+This experiment implements a three-layer cognitive architecture. Each layer 
 operates at different temporal scales and processing depths.
 
 System Architecture:
@@ -27,7 +26,7 @@ Requirements:
 ------------
 - Docker containers for Kafka and Zookeeper
 - confluent-kafka-python client
-- Python 3.7+ for async/await support
+- Python 3.12+ for async/await support
 
 Docker Setup:
 ------------
