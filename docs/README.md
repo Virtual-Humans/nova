@@ -2,14 +2,7 @@
 
 This directory contains the project documentation.
 
-## Getting Started
+## Table of Contents
 
-Describe how to get started with your project.
-
-## API Reference
-
-Document your project's API here.
-
-## Examples
-
-Provide usage examples here. 
+1. [Nova PredCod Use Cases](01_nova_predcod_use_cases.md)
+2. [The Uncanny Valley](02_uncanny_valley.md)
