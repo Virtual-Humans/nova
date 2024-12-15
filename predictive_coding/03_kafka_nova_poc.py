@@ -34,21 +34,21 @@ Docker Setup:
 # docker rm -f zookeeper kafka
 
 # Run Zookeeper
-# docker run -d --name zookeeper \
-#     -e ZOOKEEPER_CLIENT_PORT=2181 \
-#     -p 2181:2181 \
-#     confluentinc/cp-zookeeper:latest
+docker run -d --name zookeeper \
+    -e ZOOKEEPER_CLIENT_PORT=2181 \
+    -p 2181:2181 \
+    confluentinc/cp-zookeeper:latest
 
 # Run Kafka
-# docker run -d --name kafka \
-#     --link zookeeper:zookeeper \
-#     -p 9092:9092 \
-#     -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
-#     -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
-#     -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT \
-#     -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
-#     -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
-#     confluentinc/cp-kafka:latest
+docker run -d --name kafka \
+    --link zookeeper:zookeeper \
+    -p 9092:9092 \
+    -e KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181 \
+    -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092 \
+    -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT \
+    -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
+    -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 \
+    confluentinc/cp-kafka:latest
 """
 
 from confluent_kafka import Producer, Consumer
