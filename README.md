@@ -60,4 +60,4 @@ This project implements predictive coding models in Python, focusing on virtual 
 This project is licensed under the MIT License.
 
 ---
-*Part of the Virtual Humans research at Fontys ICT, Lectorate IxD.*
+*Part of the Virtual Humans research at Fontys ICT, Research Group IxD.*
